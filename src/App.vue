@@ -56,13 +56,14 @@
 <script setup lang="ts">
 import { FormRules } from 'element-plus';
 import { useCalculateMaxStringWidth } from './hooks/useCalculateMaxStringWidth';
-import { Provinces, useProvince } from './hooks/useProvince';
+import { ProvinceInfo, useProvince } from './hooks/useProvince';
 import { Form } from './types';
+
 const { getProvinces } = useProvince();
 
 const topProvinces = getProvinces();
-const cities: Ref<Provinces> = ref([]);
-const districts: Ref<Provinces> = ref([]);
+const cities: Ref<ProvinceInfo[]> = ref([]);
+const districts: Ref<ProvinceInfo[]> = ref([]);
 const form: Ref<Form> = ref({
   name: '',
   age: '',
@@ -74,7 +75,6 @@ const form: Ref<Form> = ref({
 
 const labelWidth = useCalculateMaxStringWidth(Object.keys(form.value), 16, 5);
 const districtWritten = computed(() => !!form.value.district);
-
 const rules: Ref<FormRules<Form>> = ref({
   postalCode: [
     {
