@@ -1,17 +1,17 @@
 <template>
   <div class="container">
-    <el-form :model="form" :label-width="labelWidth">
+    <el-form :model="form" :label-width="labelWidth" :rules="rules">
       <el-form-item label="name">
         <el-input v-model="form.name" />
       </el-form-item>
       <el-form-item label="age">
         <el-input v-model="form.age" />
       </el-form-item>
-      <el-form-item label="postalCode">
+      <el-form-item label="postalCode" prop="postalCode">
         <el-input v-model="form.postalCode" />
       </el-form-item>
       <el-form-item label="province">
-        <el-select v-model="form.province">
+        <el-select v-model="form.province" @change="handleProvinceChange">
           <el-option
             v-for="province in topProvinces"
             :key="province.value"
@@ -21,7 +21,11 @@
         </el-select>
       </el-form-item>
       <el-form-item label="city">
-        <el-select v-model="form.city" :disabled="!form.province">
+        <el-select
+          v-model="form.city"
+          :disabled="!form.province"
+          @change="handleCityChange"
+        >
           <el-option
             v-for="city in cities"
             :key="city.value"
@@ -40,11 +44,17 @@
           />
         </el-select>
       </el-form-item>
+      <div class="button-container">
+        <el-button type="primary">Submit</el-button>
+      </div>
     </el-form>
   </div>
+
+  <child :rules="rules"></child>
 </template>
 
 <script setup lang="ts">
+import { FormRules } from 'element-plus';
 import { useCalculateMaxStringWidth } from './hooks/useCalculateMaxStringWidth';
 import { Provinces, useProvince } from './hooks/useProvince';
 import { Form } from './types';
@@ -62,15 +72,43 @@ const form: Ref<Form> = ref({
   district: ''
 });
 
-const labelWidth = useCalculateMaxStringWidth(Object.keys(form.value));
+const labelWidth = useCalculateMaxStringWidth(Object.keys(form.value), 16, 5);
+const districtWritten = computed(() => !!form.value.district);
+
+const rules: Ref<FormRules<Form>> = ref({
+  postalCode: [
+    {
+      required: districtWritten,
+      message: 'Please input postalCode',
+      trigger: 'blur'
+    }
+  ]
+});
+
+const handleProvinceChange = () => {
+  cities.value = getProvinces(form.value.province);
+};
+const handleCityChange = () => {
+  const { province, city } = form.value;
+  districts.value = getProvinces(province, city);
+};
 </script>
 
 <style lang="scss">
 .container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
   width: 800px;
-  margin: auto;
   padding: 10px;
+  transform: translate(-50%, -50%);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
+
+  .button-container {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+  }
 }
 </style>
