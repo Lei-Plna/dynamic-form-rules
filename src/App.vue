@@ -49,8 +49,6 @@
       </div>
     </el-form>
   </div>
-
-  <child :rules="rules"></child>
 </template>
 
 <script setup lang="ts">
